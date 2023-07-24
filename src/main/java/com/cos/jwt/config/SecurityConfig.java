@@ -27,7 +27,17 @@ public class SecurityConfig {
                 .and()
                 .addFilter(corsFilter)  // 모든 요청은 corsFilter를 타게 된다. crossOrigin 인증을 사용하지 않는다.
                 .formLogin().disable()  // form 태그로 login을 만드는 것을 안한다는 의미
-                .httpBasic().disable()  // 일반적인 http 로그인 방식(post)을 사용하지 않는다. 여기까지 기본 jwt 설정
+                /*
+                * http는 header에 Authorization이라는 키 값에 id와 pw를 담아서 인증을 받는 방식
+                * 하지만 id와 pw가 암호화가 안되다 보니 정보 노출의 가능성이 있음.
+                * 그래서 https가 나왔고 s는 secure의 약자, 여기서는 암호화가 됨.
+                * 이러한 방식들을 httpBasic 방식이라고 함.
+                *
+                * bearer 방식은 header에 id와 pw가 아닌 token을 가져가기 때문에 basic보다 안전함.
+                * token은 유효시간이 있어서 일정 시간 이후에는 사용이 불가하므로 조금 더 안전.
+                * 이 토큰이 jwt
+                * */
+                .httpBasic().disable()
                 .authorizeRequests()
                 .antMatchers("/api/v1/user/**")
                 .access("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
