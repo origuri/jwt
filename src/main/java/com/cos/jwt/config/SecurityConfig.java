@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
 
@@ -38,7 +37,7 @@ public class SecurityConfig {
         * 로 걸어주면 된다.
         * SecurityContextPersistenceFilter.class가 securityFilter중 가장 먼저 실행되기 때문.
         * */
-
+        http.addFilterBefore(new MyFilter1(), SecurityContextPersistenceFilter.class);
         http.csrf();
         /*
         * 세션을 사용하지 않겠다는 선언.
@@ -66,8 +65,7 @@ public class SecurityConfig {
                 .access("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
                 .antMatchers("/api/v1/admin/**")
                 .access("hasRole('ROLE_ADMIN')")
-                .anyRequest()
-                .permitAll();
+                .anyRequest().permitAll();
 
         return http.build();
     }
