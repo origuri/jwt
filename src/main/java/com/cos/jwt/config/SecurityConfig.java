@@ -1,5 +1,6 @@
 package com.cos.jwt.config;
 
+import com.cos.jwt.filter.MyFilter1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
@@ -18,6 +21,24 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+        /*
+        * http.addFilter(new MyFilter1());
+        * 이렇게 걸면 에러가 발생함. securityfilter만 넣을 수 잇는데 일반 filter 타입이기 때문임
+        * 해결책으로 http.addFilterBefore() 메소드를 사용하는 것.
+        *
+        * http.addFilterBefore(new MyFilter1(), BasicAuthenticationFilter.class);
+        * BasicAuthenticationFilter.class가 securityFilter임.
+        * BasicAuthenticationFilter.class가 발동하기 전에 내가 만든 일반 MyFilter가 실행되도록 함.
+        * 하지만 일반 filter를 굳이 securityConfig에서 걸 필요는 없다.
+        *
+        * FilterConfig 클래스를 하나 만들어서 컨트롤한다.
+        * 이렇게 만든 필터는 securityFilter가 동작이 완료된 후에 실행이 된다.
+        * 하지만 securityFilter보다 빠르게 발동하게 하려면
+        * http.addFilterBefore(new MyFilter1(), SecurityContextPersistenceFilter.class);
+        * 로 걸어주면 된다.
+        * SecurityContextPersistenceFilter.class가 securityFilter중 가장 먼저 실행되기 때문.
+        * */
+
         http.csrf();
         /*
         * 세션을 사용하지 않겠다는 선언.
