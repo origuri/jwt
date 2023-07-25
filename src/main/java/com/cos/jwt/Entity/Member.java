@@ -1,5 +1,6 @@
 package com.cos.jwt.Entity;
 
+import com.cos.jwt.dto.MemberDto;
 import lombok.*;
 
 import javax.persistence.Entity;
@@ -37,5 +38,13 @@ public class Member {
             return new ArrayList<>();
         }
 
+    }
+
+    public static Member toJoinMemberEntity(MemberDto memberDto){
+        return Member.builder()
+                .username(memberDto.getUsername())
+                .password(memberDto.getPassword())
+                .roles(memberDto.getRole())
+                .build();
     }
 }

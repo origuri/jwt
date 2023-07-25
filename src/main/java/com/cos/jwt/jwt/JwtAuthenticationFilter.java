@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 * jwt에서 formLogin을 막았기 때문에 내가 직접 securityFilter에 등록시켜야 함
 * */
 @RequiredArgsConstructor
-public class JwtAutenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
 
@@ -28,7 +28,7 @@ public class JwtAutenticationFilter extends UsernamePasswordAuthenticationFilter
         System.out.println("JwtAutenticationFilter 로그인 시도 중");
 
         /*
-        * 1. /login post 요청이 오면 username과 password를 받아서 authenticationManager가 로그인 시도를 함
+        * 1. /login post 요청이 오면 username과 password를 securityConfig의 authenticationManager가 물고 와서 로그인 시도를 함
         * 2. 로그인 시도를 하면 principalDetailsService가 실행이 되고
         * 3. loadUserByUsername 메소드 실행이 되서 userDetails 객체를 PrincipalDetails로 리턴해서 세션에 담아줌.
         *    굳이 세션에 담아주는 이유는 세션에 안담으면 권한관리가 안되기 때문.

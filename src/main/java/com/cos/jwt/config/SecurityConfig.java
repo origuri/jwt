@@ -2,7 +2,7 @@ package com.cos.jwt.config;
 
 
 import com.cos.jwt.filter.MyFilter1;
-import com.cos.jwt.jwt.JwtAutenticationFilter;
+import com.cos.jwt.jwt.JwtAuthenticationFilter;
 import com.cos.jwt.repository.MemberRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +18,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 
-// https://github.com/spring-projects/spring-security/issues/10822 참고
+
 @Configuration
 @EnableWebSecurity // 시큐리티 활성화 -> 기본 스프링 필터체인에 등록
 public class SecurityConfig {
@@ -91,7 +91,7 @@ public class SecurityConfig {
             http
                     .addFilter(corsConfig.corsFilter()) // 모든 요청은 corsFilter를 타게 된다. crossOrigin 인증을 사용하지 않는다.
                     // formLogin을 막았기 때문에 새로 만든 loginSecurity
-                    .addFilter(new JwtAutenticationFilter(authenticationManager));
+                    .addFilter(new JwtAuthenticationFilter(authenticationManager));
         }
     }
 
