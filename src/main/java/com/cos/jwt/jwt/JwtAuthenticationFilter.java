@@ -104,8 +104,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withSubject("ori토큰") // 토큰이름
                 .withExpiresAt(new Date(System.currentTimeMillis()+(60000*10)))     // 토큰 만료시간 현재시간으로부터 10분
                 .withClaim("id", principalDetails.getMember().getId())        // 비공개 클레임, 내가 넣고 싶은 값.
-                .withClaim("username", principalDetails.getMember().getUsername())
-                .sign(Algorithm.HMAC512("cos"));
+                .withClaim("username", principalDetails.getMember().getUsername()) // 비공개 클레임, 내가 넣고 싶은 값.
+                .sign(Algorithm.HMAC512("cos")); // 서버만 알고 있는 시크릿 키값.
         //  Bearer하고 한칸 꼭 띄우기
         //  Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJI어쩌구가 토큰값. postman에서 확인가능
         /*

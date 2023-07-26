@@ -3,6 +3,7 @@ package com.cos.jwt.config;
 
 import com.cos.jwt.filter.MyFilter1;
 import com.cos.jwt.jwt.JwtAuthenticationFilter;
+import com.cos.jwt.jwt.JwtAuthorizationFilter;
 import com.cos.jwt.repository.MemberRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +50,6 @@ public class SecurityConfig {
                  * 로 걸어주면 된다.
                  * SecurityContextPersistenceFilter.class가 securityFilter중 가장 먼저 실행되기 때문.
                  * */
-                .addFilterBefore(new MyFilter1(), SecurityContextPersistenceFilter.class)
                 .csrf().disable()
                 /*
                  * 세션을 사용하지 않겠다는 선언.
@@ -91,7 +91,9 @@ public class SecurityConfig {
             http
                     .addFilter(corsConfig.corsFilter()) // 모든 요청은 corsFilter를 타게 된다. crossOrigin 인증을 사용하지 않는다.
                     // formLogin을 막았기 때문에 새로 만든 loginSecurity
-                    .addFilter(new JwtAuthenticationFilter(authenticationManager));
+                    .addFilter(new JwtAuthenticationFilter(authenticationManager))
+                    .addFilter(new JwtAuthorizationFilter(authenticationManager, memberRepository));
+
         }
     }
 
