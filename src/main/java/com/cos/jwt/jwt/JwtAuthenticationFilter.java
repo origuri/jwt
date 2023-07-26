@@ -1,5 +1,7 @@
 package com.cos.jwt.jwt;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.cos.jwt.auth.PrincipalDetails;
 import com.cos.jwt.dto.LoginRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Date;
 
 /*
 * 스프링 시큐리티에서 UsernamePasswordAuthenticationFilter 이 필터가 있음.
@@ -92,6 +95,23 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         System.out.println("이거 나오면 attemptAuthentication 잘 되서 로그인 된거임. ");
-        super.successfulAuthentication(request, response, chain, authResult);
+        /*
+        * 이 정보를 통해서 jwt 토큰을 생성함.
+        * */
+        PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
+
+        String jwtToken = JWT.create()
+                .withSubject("ori토큰") // 토큰이름
+                .withExpiresAt(new Date(System.currentTimeMillis()+(60000*10)))     // 토큰 만료시간 현재시간으로부터 10분
+                .withClaim("id", principalDetails.getMember().getId())        // 비공개 클레임, 내가 넣고 싶은 값.
+                .withClaim("username", principalDetails.getMember().getUsername())
+                .sign(Algorithm.HMAC512("cos"));
+        //  Bearer하고 한칸 꼭 띄우기
+        //  Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJI어쩌구가 토큰값. postman에서 확인가능
+        /*
+         이제 요청할 때마다 이 jwt 토큰을 가지고 요청을 해야함.
+         서버는 jwt 토큰이 유효한지 판단을 해야 하는 데 이를 위해 필터를 만들어야 함.
+        * */
+        response.addHeader("Autentication", "Bearer "+jwtToken);
     }
 }
