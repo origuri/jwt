@@ -1,13 +1,21 @@
 package com.cos.jwt.jwt;
 
+import com.cos.jwt.auth.PrincipalDetails;
+import com.cos.jwt.dto.LoginRequestDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /*
 * 스프링 시큐리티에서 UsernamePasswordAuthenticationFilter 이 필터가 있음.
@@ -34,6 +42,56 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         *    굳이 세션에 담아주는 이유는 세션에 안담으면 권한관리가 안되기 때문.
         * 4. jwt 토큰을 만들어서 응답해주면 됨.
         * */
-        return super.attemptAuthentication(request, response);
+
+        // request에 있는 username과 password를 파싱해서 자바 object로 받기
+        //objectManager 객체는 json 데이터를 파싱할 수 있다
+        ObjectMapper om = new ObjectMapper();
+        LoginRequestDto loginRequestDto = null;
+        try {
+            // dto 필드 값에 request에 있는 username과 password의 값을 넣음.
+            loginRequestDto = om.readValue(request.getInputStream(), LoginRequestDto.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // username으로 토큰을 만들어 준다.
+        // formLogin을 하면 알아서 다 만들어 주지만 jwt는 내가 만들어야 됨.
+        UsernamePasswordAuthenticationToken authenticationToken
+                = new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(),loginRequestDto.getPassword());
+
+        // principalDetailsService에 loadUserByUsername 함수가 실행되면서 토큰에 있는 username만 가져감.
+        // password는 spring이 알아서 처리해줌.
+        // 토큰을 통해서 로그인 시도를 해보고 정상이면 authentication이 리턴 됨.
+        // DB에 있는 username과 password가 일치함.
+        Authentication authentication =
+                authenticationManager.authenticate(authenticationToken);
+        /*
+         * authentication 에는 userDetails 타입만 들어감.
+         * userDetails 타입이 PrincipalDetails 이고
+         * authentication이 userDetails의 부모 클래스이다 보니 다운캐스팅을 해야 함.
+         *
+         * sout이 제대로 나온다는건 DB에 있는 username과 password가 일치해서 로그인 성공했다는 것.
+         * */
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        System.out.println("이게 뜨면 로그인 된거임. => "+principalDetails.getMember().getUsername());
+        System.out.println("loginDto-> "+loginRequestDto);
+
+
+        /*
+        * 이제 이 authentication 객체를 session에 저장해야 하는데 방법이 authentication을 리턴하면 된다.
+        * 근데 jwt를 쓰면 session을 쓰지 않는데 session에 저장하는 이유는
+        * 권한 관리를 할 수 있기 때문.
+        * */
+        return authentication;
+    }
+
+    /*
+    * attemptAuthentication 실행 후 인증이 정상적으로 되면 successfulAuthentication가 실행됨.
+    * 여기서 jwt 토큰을 만들어서 request 요청한 사용자에게 jwt 토큰을 response로 보내주면 됨.
+    * */
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        System.out.println("이거 나오면 attemptAuthentication 잘 되서 로그인 된거임. ");
+        super.successfulAuthentication(request, response, chain, authResult);
     }
 }

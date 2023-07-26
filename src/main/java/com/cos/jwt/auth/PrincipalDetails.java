@@ -1,6 +1,7 @@
 package com.cos.jwt.auth;
 
 import com.cos.jwt.Entity.Member;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @RequiredArgsConstructor
+@Getter
 public class PrincipalDetails implements UserDetails {
 
     private final Member member;
