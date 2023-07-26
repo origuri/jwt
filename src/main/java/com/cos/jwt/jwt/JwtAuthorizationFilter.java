@@ -40,7 +40,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         super.doFilterInternal(request, response, chain);
         System.out.println("인증이나 권한이 필요한 주소가 요청됨.");
 
-        String jwtHeader = request.getHeader("Authorization");
+        String jwtHeader = request.getHeader(JwtProperties.HEADER_STRING);
         System.out.println("jwtHeader -> "+jwtHeader);
 
         /*
@@ -48,21 +48,21 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         * 만약 jwtHeader가 null이거나 Bearer로 시작하지 않으면
         * 그냥 접속 거부되고 끝
         * */
-        if(jwtHeader == null || !jwtHeader.startsWith("Bearer")){
+        if(jwtHeader == null || !jwtHeader.startsWith(JwtProperties.TOKEN_PREFIX)){
             chain.doFilter(request, response);
             return;
         }
 
         // jwt 토큰 검증해서 정상적인 사용자인지 확인.
         // 앞에 Bearer하고 띄어쓰기 한 칸 값을 없애서 순수 토큰만 남김.
-        String jwtToken = request.getHeader("Authorization").replace("Bearer ","");
+        String jwtToken = request.getHeader(JwtProperties.HEADER_STRING).replace(JwtProperties.TOKEN_PREFIX,"");
 
         /*
         * jwt에 들어있는 username을 가져오는 과정.
         * 시크릿 키값을 입력해서 빌드하고, jwt 토큰으로 서명하고, 거기서 username을 가져와서 String 타입으로 캐스팅한다.
         * */
         String username =
-                JWT.require(Algorithm.HMAC512("cos")).build().verify(jwtToken).getClaim("username").asString();
+                JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(jwtToken).getClaim("username").asString();
 
         // 서명이 정상적으로 이루어졌다면 username이 비어있지 않을 것.
         if(username != null){
