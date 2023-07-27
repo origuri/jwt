@@ -38,6 +38,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        /*
+        * 여기서 응답을 한번 하고 chain.doFitler로 응답을 한번 더 하니까 에러가 발생함.
+        * 지워줘야 함.
+        * super.doFilterInternal(request,response,chain);
+        * */
         System.out.println("인증이나 권한이 필요한 주소가 요청됨.");
 
         String header = request.getHeader(JwtProperties.HEADER_STRING);
