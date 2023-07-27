@@ -1,7 +1,7 @@
 package com.cos.jwt.config;
 
 
-import com.cos.jwt.filter.MyFilter1;
+
 import com.cos.jwt.jwt.JwtAuthenticationFilter;
 import com.cos.jwt.jwt.JwtAuthorizationFilter;
 import com.cos.jwt.repository.MemberRepository;
@@ -16,7 +16,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 
 

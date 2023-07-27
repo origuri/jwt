@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             // dto 필드 값에 request에 있는 username과 password의 값을 넣음.
             loginRequestDto = om.readValue(request.getInputStream(), LoginRequestDto.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         // username으로 토큰을 만들어 준다.
@@ -101,17 +101,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
 
         String jwtToken = JWT.create()
-                .withSubject("ori토큰") // 토큰이름
-                .withExpiresAt(new Date(System.currentTimeMillis()+(60000*10)))     // 토큰 만료시간 현재시간으로부터 10분
+                .withSubject(principalDetails.getUsername()) // 토큰이름
+                .withExpiresAt(new Date(System.currentTimeMillis()+JwtProperties.EXPIRATION_TIME))     // 토큰 만료시간 현재시간으로부터 10분
                 .withClaim("id", principalDetails.getMember().getId())        // 비공개 클레임, 내가 넣고 싶은 값.
                 .withClaim("username", principalDetails.getMember().getUsername()) // 비공개 클레임, 내가 넣고 싶은 값.
-                .sign(Algorithm.HMAC512("cos")); // 서버만 알고 있는 시크릿 키값.
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET)); // 서버만 알고 있는 시크릿 키값.
         //  Bearer하고 한칸 꼭 띄우기
         //  Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJI어쩌구가 토큰값. postman에서 확인가능
         /*
          이제 요청할 때마다 이 jwt 토큰을 가지고 요청을 해야함.
          서버는 jwt 토큰이 유효한지 판단을 해야 하는 데 이를 위해 필터를 만들어야 함.
         * */
-        response.addHeader("Autentication", "Bearer "+jwtToken);
+        response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX+jwtToken);
     }
 }
